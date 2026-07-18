@@ -25,7 +25,22 @@ function App() {
     }
 
     getSession()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setSession(session)
+        setIsLoading(false)
+      }
+    )
+
+    return () => {
+      subscription.unsubscribe()
+    }
   }, [])
+
+  if (isLoading) {
+    return <div className="app-loading">Loading...</div>
+  }
 
   return (
     <Routes>
