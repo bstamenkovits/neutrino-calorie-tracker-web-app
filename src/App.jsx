@@ -18,6 +18,7 @@ function App() {
   const location = useLocation()
 
   useEffect(() => {
+    // retrieve the session from local storage if possible
     const getSession = async () => {
       const { data } = await supabase.auth.getSession()
       setSession(data.session)
@@ -26,6 +27,7 @@ function App() {
 
     getSession()
 
+    // update the session incase the user performs some sort of login/logout action
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setSession(session)
@@ -38,6 +40,9 @@ function App() {
     }
   }, [])
 
+  // this is necessary to make sure the Routes do not get rendered before the
+  // supabase session has had a session from being retrieved (see getSession
+  // async function in useEffect)
   if (isLoading) {
     return <div className="app-loading">Loading...</div>
   }
