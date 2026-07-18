@@ -1,7 +1,7 @@
 import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase'
-
-
+import '../styles/login.css'
 
 
 
@@ -10,6 +10,12 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('')
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // page from which the user was redirected to Login
+  const from = location.state?.from ?? { pathname: '/' };
+
 
   async function login(email, password) {
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -17,10 +23,11 @@ export default function LoginPage() {
             password,
         })
 
-        console.log({data, error})
-
         if (error) {setMessage(error.message)}
-        else {setMessage('Logged in successfully')}
+        else {
+            setMessage('Logged in successfully')
+            navigate(from, { replace: true })
+        }
 
     }
 
@@ -29,8 +36,6 @@ export default function LoginPage() {
             email,
             password,
         })
-
-        // console.log({data, error})
 
         if (error) {setMessage(error.message)}
         else {setMessage('Signed up successfully, you can now login using the email/password combination you provided')}
@@ -47,64 +52,29 @@ export default function LoginPage() {
     };
 
   return (
-    <div style={{ maxWidth: '320px', margin: '3rem auto', padding: '1rem' }}>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '0.75rem',
-          marginBottom: '1rem',
-        }}
-      >
+    <div className="login-page">
+
+      <div className="login-toggle">
         <span>{isLogin ? 'Login' : 'Sign up'}</span>
-        <label
-          style={{
-            position: 'relative',
-            display: 'inline-flex',
-            alignItems: 'center',
-            width: '48px',
-            height: '28px',
-            cursor: 'pointer',
-          }}
-        >
+        <label className="login-toggle-label">
           <input
+            className="login-toggle-checkbox"
             type="checkbox"
             checked={!isLogin}
             onChange={() => setIsLogin((prev) => !prev)}
-            style={{ opacity: 0, width: 0, height: 0 }}
           />
-          <span
-            style={{
-              position: 'absolute',
-              inset: 0,
-              backgroundColor: isLogin ? '#ccc' : '#34c759',
-              borderRadius: '999px',
-              transition: 'background-color 0.2s',
-            }}
-          />
-          <span
-            style={{
-              position: 'absolute',
-              left: isLogin ? '2px' : '22px',
-              top: '2px',
-              width: '24px',
-              height: '24px',
-              backgroundColor: 'white',
-              borderRadius: '50%',
-              transition: 'left 0.2s',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-            }}
-          />
+          <span className={`login-slider ${isLogin ? '' : 'active'}`} />
+          <span className={`login-slider-knob ${isLogin ? '' : 'active'}`} />
         </label>
       </div>
 
       <h2>{isLogin ? 'Login' : 'Sign up'}</h2>
 
-      <form onSubmit={handleSubmit}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      <form className="login-form" onSubmit={handleSubmit}>
+        <div className="login-form-fields">
           <label htmlFor="email">Email</label>
           <input
+            className="login-input"
             id="email"
             type="email"
             value={email}
@@ -114,6 +84,7 @@ export default function LoginPage() {
 
           <label htmlFor="password">Password</label>
           <input
+            className="login-input"
             id="password"
             type="password"
             value={password}
@@ -121,8 +92,8 @@ export default function LoginPage() {
             required
           />
 
-          <button type="submit">{isLogin ? 'Log In' : 'Create Account'}</button>
-          {message ? <p>{message}</p> : null}
+          <button className="login-button" type="submit">{isLogin ? 'Log In' : 'Create Account'}</button>
+          {message ? <p className="login-message">{message}</p> : null}
         </div>
       </form>
     </div>
